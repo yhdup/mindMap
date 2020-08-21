@@ -42,9 +42,9 @@ export default {
     this.jsPlumb = this.$jsPlumb.getInstance({
       Container: "root", //选择器id
       // EndpointStyle: { radius: 8, fill: "#acd" }, //端点样式
-      // Endpoint: ["Dot", { radius: 10, fill: "#acd" } ],
+      Endpoint: ["Dot", { radius: 10, fill: "#acd" } ],
       // Endpoint: ["Image", { src: "../assets/logo.png"}],
-      Endpoint: ["Image", { src: "../assets/aaa.png",cssClass:'imgs'}],
+      // Endpoint: ["Image", { src: "../assets/aaa.png",cssClass:'imgs'}],
       // Endpoint:'Blank',
       PaintStyle: { stroke: "#000000", strokeWidth: 2 }, // 绘画样式，默认8px线宽  #456
       HoverPaintStyle: { stroke: "#1E90FF" }, // 默认悬停样式  默认为null
