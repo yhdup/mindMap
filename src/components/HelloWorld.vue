@@ -5,8 +5,8 @@
       <div id="left">
         <div class="node" id="node1">
           流程1
-          <span class="nodeAdd">+</span>
-          <span class="nodeReduce">X</span>
+          <!-- <span class="nodeAdd">+</span>
+          <span class="nodeReduce">X</span>-->
         </div>
         <div class="node node2css" id="node2">流程2</div>
         <div class="node node3css" id="node3">流程3</div>
@@ -14,7 +14,7 @@
       </div>
       <div id="right">
         <h2>下方区域绘制流程图</h2>
-        <div class="content" id="main" @click="reduceNode"></div>
+        <div class="content" scope="yhd" style="position: relative" id="main" @click="reduceNode"></div>
       </div>
     </div>
   </div>
@@ -42,7 +42,7 @@ export default {
     this.jsPlumb = this.$jsPlumb.getInstance({
       Container: "root", //选择器id
       // EndpointStyle: { radius: 8, fill: "#acd" }, //端点样式
-      Endpoint: ["Dot", { radius: 10, fill: "#acd" } ],
+      Endpoint: ["Dot", { radius: 10, fill: "#acd" }],
       // Endpoint: ["Image", { src: "../assets/logo.png"}],
       // Endpoint: ["Image", { src: "../assets/aaa.png",cssClass:'imgs'}],
       // Endpoint:'Blank',
@@ -76,38 +76,118 @@ export default {
       // DrapOptions: { cursor: "crosshair", zIndex: 2000 }
     });
     // 设置元素存放区域
-    this.drapNodes("main");
-
+    this.drapNodes();
     this.nodeHover(node1, "basicNodes");
     this.nodeMouseLeave(node1, "basicNodes");
-    // 增加基本node中的第一种
-    this.addNode(node1.children[0], node1);
+    // // 增加基本node中的第一种
+    // this.addNode(node1.children[0], node1);
     // 去掉连线
     this.reduceLine();
+    // 设置左侧基础节点拖动
+    this.basicDrags();
   },
   computed: {},
   watch: {},
   methods: {
-    // 设置使元素可拖动
-    dragNodes(ele) {
+    // 基础节点拖动
+    basicDrags() {
       let that = this;
-      that.jsPlumb.draggable(ele, {
-        helper: "clone",
-        scope: "yhd"
+      let nodeArr = Array.from(document.getElementsByClassName("node"));
+      // console.log(nodeArr);
+      nodeArr.forEach(function(item) {
+        // console.log(item.id);
+        that.jsPlumb.draggable(item.id, {
+          // helper: "clone",
+          clone: true,
+          scope: "yhd",
+          containment: true,
+          drag: function() {
+            // console.log(123123);
+          }
+        });
       });
     },
+    // 克隆节点拖动
+    // dragNodes(ele) {
+    //   let that = this;
+    //   that.jsPlumb.draggable(ele, {
+    //       scope: "yhd",
+    //     drag: function() {
+    //       // console.log(123123);
+    //     }
+    //   });
+    // },
     // 设置元素存放
-    drapNodes(ele) {
+    allDrop(e) {
+      // console.log(object)
+      e.preventDefault();
+    },
+
+    drop(e) {
+      e.preventDefault();
+      console.log(e, "------------");
+    },
+
+    drapNodes() {
       let that = this;
-      that.jsPlumb.droppable(ele, {
+      let areaId = document.getElementById("main");
+      that.jsPlumb.droppable("main", {
         scope: "yhd",
-        drop: function(event) {
-          console.log(event, "-=-=-=");
-          // console.log(arguments)
+        containment: true,
+        drop: function(event, ui) {
+          console.log(event, ui, "+++++");
+          event.drop.el.style = "position:relative";
+          let tempCom = event.e.target.cloneNode(true);
+          console.log(tempCom, 888888888);
+          if (tempCom.id !== "null") {
+            return;
+          }
+          // console.log(
+          //   parseInt(tempCom.style.top),
+          //   event.drop.el.getBoundingClientRect()
+          // );
+          tempCom.style.left =
+            parseInt(tempCom.style.left) -
+            event.drop.el.getBoundingClientRect().left +
+            "px";
+          tempCom.style.top =
+            parseInt(tempCom.style.top) -
+            event.drop.el.getBoundingClientRect().top +
+            "px";
+          // console.log(tempCom.style.left);
+          if (
+            parseInt(tempCom.style.left) < 0 ||
+            parseInt(tempCom.style.top) < 0
+          ) {
+          } else {
+            that.uniqueId++;
+            tempCom.id = "cloneNode" + that.uniqueId;
+            console.log(tempCom);
+            event.drop.el.append(tempCom);
+            // if (tempCom.id) {
+            that.jsPlumb.draggable(tempCom.id, {
+              // helper: "clone"
+              scope: "yhd",
+              containment: true
+            });
+            //   return;
+            // }
+            that.addConnect(tempCom.id);
+            console.log(tempCom, "123");
+            // that.addConnect(tempCom);
+
+            // that.jsPlumb.draggable(tempCom.id, {
+            //   // helper: "clone"
+            //   scope: "yhd",
+            //   containment: true,
+            //   drag: function() {
+            //     // console.log(123123);
+            //   }
+            // });
+          }
         }
       });
     },
-
     // 设置元素增加连接点 上下左右四个
     addConnect(ele) {
       //基本连接线样式
@@ -174,7 +254,7 @@ export default {
         // console.log(ele.children[0]);
         ele.onmouseover = function() {
           console.log("鼠标移入");
-          ele.children[0].style.display = "inline-block";
+          // ele.children[0].style.display = "inline-block";
         };
       }
     },
@@ -189,30 +269,31 @@ export default {
       else if (type === "basicNodes") {
         ele.onmouseleave = function() {
           console.log("鼠标移出");
-          ele.children[0].style.display = "none";
+          // ele.children[0].style.display = "none";
         };
       }
     },
     // 点击 + 增加一个节点
-    addNode(ele, node) {
-      let that = this;
-      ele.onclick = function() {
-        that.uniqueId++;
-        let cloneNode = node.cloneNode(true);
-        cloneNode.setAttribute("class", "nodeOfClone");
-        cloneNode.setAttribute("id", `nodeOfClone ${that.uniqueId}`);
-        document.getElementById("main").appendChild(cloneNode);
-        console.log(that.jsPlumb);
-        Array.from(document.getElementsByClassName("nodeOfClone")).forEach(
-          item => {
-            console.log(item.id);
-            that.dragNodes(item.id);
-            // that.connectLine(item)
-            that.addConnect(item.id);
-          }
-        );
-      };
-    },
+    // addNode(ele, node) {
+    // let that = this;
+    // ele.onclick = function() {
+    //   that.uniqueId++;
+    //   let cloneNode = node.cloneNode(true);
+    //   cloneNode.setAttribute("class", "nodeOfClone");
+    //   cloneNode.setAttribute("id", `nodeOfClone ${that.uniqueId}`);
+    //  console.log(cloneNode,'cloneNode')
+    //  document.getElementById("main").appendChild(cloneNode);
+    //   console.log(that.jsPlumb);
+    //   Array.from(document.getElementsByClassName("nodeOfClone")).forEach(
+    //     item => {
+    //       console.log(item.id);
+    //       that.dragNodes(item.id);
+    //       // that.connectLine(item)
+    //       that.addConnect(item.id);
+    //     }
+    //   );
+    // };
+    // },
     // 点击 X 删除一个节点
     // 通过事件捕获做的
     reduceNode(e) {
@@ -355,18 +436,23 @@ body {
 }
 
 // 克隆节点中的删除按钮样式
-.nodeOfClone .nodeReduce {
-  float: right;
-  display: inline-block;
-  font-size: 15px;
-  transform: translate(50%, -50%);
-}
+// .nodeOfClone .nodeReduce {
+//   float: right;
+//   display: inline-block;
+//   font-size: 15px;
+//   transform: translate(50%, -50%);
+// }
 
-.nodeOfClone .nodeAdd {
-  display: none;
-}
-.imgs{
-  width: 20px;
-  height: 40px;
+// .nodeOfClone .nodeAdd {
+//   display: none;
+// }
+// .imgs {
+//   width: 20px;
+//   height: 40px;
+// }
+.nodeOfClone {
+  width: 200px;
+  height: 20px;
+  background-color: #ccc;
 }
 </style>
