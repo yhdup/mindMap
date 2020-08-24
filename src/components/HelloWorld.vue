@@ -5,12 +5,20 @@
       <div id="left">
         <div class="node" id="node1">
           流程1
-          <!-- <span class="nodeAdd">+</span>
-          <span class="nodeReduce">X</span>-->
+          <span class="deleteNode">X</span>
         </div>
-        <div class="node node2css" id="node2">流程2</div>
-        <div class="node node3css" id="node3">流程3</div>
-        <div class="node node4css" id="node4">流程4</div>
+        <div class="node node2css" id="node2">
+          流程2
+          <span class="deleteNode">X</span>
+        </div>
+        <div class="node node3css" id="node3">
+          流程3
+          <span class="deleteNode">X</span>
+        </div>
+        <div class="node node4css" id="node4">
+          流程4
+          <span class="deleteNode">X</span>
+        </div>
       </div>
       <div id="right">
         <h2>下方区域绘制流程图</h2>
@@ -26,13 +34,17 @@ export default {
     return {
       jsPlumb: null,
       uniqueId: 0, //给克隆节点绑定唯一ID
+      // 起点锚点配置
       targetConfig: {
         isSource: false, //是否可以拖动（作为连线起点）
-        isTarget: true //是否可以放置（连线终点）
+        isTarget: true, //是否可以放置（连线终点）
+        maxConnections: -1
       },
+      // 重点锚点配置
       strartConfig: {
         isSource: true, //是否可以拖动（作为连线起点）
-        isTarget: false //是否可以放置（连线终点）
+        isTarget: false, //是否可以放置（连线终点）
+        maxConnections: -1
       }
     };
   },
@@ -43,14 +55,8 @@ export default {
       Container: "root", //选择器id
       // EndpointStyle: { radius: 8, fill: "#acd" }, //端点样式
       Endpoint: ["Dot", { radius: 10, fill: "#acd" }],
-      // Endpoint: ["Image", { src: "../assets/logo.png"}],
-      // Endpoint: ["Image", { src: "../assets/aaa.png",cssClass:'imgs'}],
-      // Endpoint:'Blank',
       PaintStyle: { stroke: "#000000", strokeWidth: 2 }, // 绘画样式，默认8px线宽  #456
       HoverPaintStyle: { stroke: "#1E90FF" }, // 默认悬停样式  默认为null
-      // EndpointHoverStyle: { fill: "#F00", radius: 6 }, // 端点悬停样式
-      // isSource: true, //是否可以拖动（作为连线起点）
-      // isTarget: true, //是否可做为终点
       maxConnections: -1,
       ConnectionOverlays: [
         [
@@ -77,10 +83,6 @@ export default {
     });
     // 设置元素存放区域
     this.drapNodes();
-    this.nodeHover(node1, "basicNodes");
-    this.nodeMouseLeave(node1, "basicNodes");
-    // // 增加基本node中的第一种
-    // this.addNode(node1.children[0], node1);
     // 去掉连线
     this.reduceLine();
     // 设置左侧基础节点拖动
@@ -93,41 +95,24 @@ export default {
     basicDrags() {
       let that = this;
       let nodeArr = Array.from(document.getElementsByClassName("node"));
-      // console.log(nodeArr);
       nodeArr.forEach(function(item) {
-        // console.log(item.id);
         that.jsPlumb.draggable(item.id, {
-          // helper: "clone",
           clone: true,
           scope: "yhd",
           containment: true,
-          drag: function() {
-            // console.log(123123);
-          }
+          drag: function() {}
         });
       });
     },
-    // 克隆节点拖动
-    // dragNodes(ele) {
-    //   let that = this;
-    //   that.jsPlumb.draggable(ele, {
-    //       scope: "yhd",
-    //     drag: function() {
-    //       // console.log(123123);
-    //     }
-    //   });
-    // },
     // 设置元素存放
     allDrop(e) {
       // console.log(object)
       e.preventDefault();
     },
-
     drop(e) {
       e.preventDefault();
       console.log(e, "------------");
     },
-
     drapNodes() {
       let that = this;
       let areaId = document.getElementById("main");
@@ -135,17 +120,15 @@ export default {
         scope: "yhd",
         containment: true,
         drop: function(event, ui) {
-          console.log(event, ui, "+++++");
+          // console.log(event, ui, "+++++");
           event.drop.el.style = "position:relative";
           let tempCom = event.e.target.cloneNode(true);
-          console.log(tempCom, 888888888);
+          // tempCom.appendChild();
+          // console.log(tempCom, 888888888);
+          // 如果拖动的是克隆节点，则仅仅让拖动不让执行后续
           if (tempCom.id !== "null") {
             return;
           }
-          // console.log(
-          //   parseInt(tempCom.style.top),
-          //   event.drop.el.getBoundingClientRect()
-          // );
           tempCom.style.left =
             parseInt(tempCom.style.left) -
             event.drop.el.getBoundingClientRect().left +
@@ -160,30 +143,21 @@ export default {
             parseInt(tempCom.style.top) < 0
           ) {
           } else {
+            // 给克隆元素绑定唯一ID 让其后续可拖拽
             that.uniqueId++;
             tempCom.id = "cloneNode" + that.uniqueId;
-            console.log(tempCom);
+            tempCom.setAttribute("className", "nodeOfClone");
+            console.log(tempCom.className);
+            //
+            // tempCom.append();
+            // console.log(tempCom);
             event.drop.el.append(tempCom);
-            // if (tempCom.id) {
             that.jsPlumb.draggable(tempCom.id, {
-              // helper: "clone"
               scope: "yhd",
               containment: true
             });
-            //   return;
-            // }
             that.addConnect(tempCom.id);
-            console.log(tempCom, "123");
-            // that.addConnect(tempCom);
-
-            // that.jsPlumb.draggable(tempCom.id, {
-            //   // helper: "clone"
-            //   scope: "yhd",
-            //   containment: true,
-            //   drag: function() {
-            //     // console.log(123123);
-            //   }
-            // });
+            // console.log(tempCom, "123");
           }
         }
       });
@@ -253,7 +227,7 @@ export default {
       else if (type === "basicNodes") {
         // console.log(ele.children[0]);
         ele.onmouseover = function() {
-          console.log("鼠标移入");
+          // console.log("鼠标移入");
           // ele.children[0].style.display = "inline-block";
         };
       }
@@ -273,34 +247,14 @@ export default {
         };
       }
     },
-    // 点击 + 增加一个节点
-    // addNode(ele, node) {
-    // let that = this;
-    // ele.onclick = function() {
-    //   that.uniqueId++;
-    //   let cloneNode = node.cloneNode(true);
-    //   cloneNode.setAttribute("class", "nodeOfClone");
-    //   cloneNode.setAttribute("id", `nodeOfClone ${that.uniqueId}`);
-    //  console.log(cloneNode,'cloneNode')
-    //  document.getElementById("main").appendChild(cloneNode);
-    //   console.log(that.jsPlumb);
-    //   Array.from(document.getElementsByClassName("nodeOfClone")).forEach(
-    //     item => {
-    //       console.log(item.id);
-    //       that.dragNodes(item.id);
-    //       // that.connectLine(item)
-    //       that.addConnect(item.id);
-    //     }
-    //   );
-    // };
-    // },
     // 点击 X 删除一个节点
     // 通过事件捕获做的
     reduceNode(e) {
       var that = this;
       e.stopPropagation();
       e.preventDefault();
-      if (e.target.className === "nodeReduce") {
+      console.log(e.target)
+      if (e.target.className === "deleteNode") {
         that.jsPlumb.remove(e.target.parentNode.id);
       }
     },
@@ -335,9 +289,6 @@ body {
   padding: 32px;
   border: 2px solid darkgray;
   box-sizing: border-box;
-  // display: flex;
-  // flex-flow: column;
-  // justify-content: space-between;
 }
 
 .node {
@@ -434,25 +385,27 @@ body {
 .node .nodeReduce {
   display: none;
 }
-
-// 克隆节点中的删除按钮样式
-// .nodeOfClone .nodeReduce {
-//   float: right;
-//   display: inline-block;
-//   font-size: 15px;
-//   transform: translate(50%, -50%);
-// }
-
-// .nodeOfClone .nodeAdd {
-//   display: none;
-// }
-// .imgs {
-//   width: 20px;
-//   height: 40px;
-// }
 .nodeOfClone {
   width: 200px;
   height: 20px;
   background-color: #ccc;
+}
+#node1 .deleteNode {
+  display: none;
+}
+#node2 .deleteNode {
+  display: none;
+}
+#node3 .deleteNode {
+  display: none;
+}
+#node4 .deleteNode {
+  display: none;
+}
+.deleteNode {
+  font-size: 18px;
+  display: inline-block;
+  float: right;
+  transform: translate(50%, -50%);
 }
 </style>
