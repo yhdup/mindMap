@@ -121,14 +121,21 @@ export default {
         containment: true,
         drop: function(event, ui) {
           // console.log(event, ui, "+++++");
-          event.drop.el.style = "position:relative";
+          // console.log( event.drop.el)
+          event.drop.el.style.position = "relative";
+          // console.log(event.drop.el, "event.drop.el");
+          // console.log(3333333)
           let tempCom = event.e.target.cloneNode(true);
+          // console.log(tempCom, "tempCom");
           // tempCom.appendChild();
           // console.log(tempCom, 888888888);
           // 如果拖动的是克隆节点，则仅仅让拖动不让执行后续
-          if (tempCom.id !== "null") {
+          // console.log(tempCom.id,'id');
+          // console.log(tempCom.id=='','id');
+          if (tempCom.id !== "null"&&tempCom.id !=='') {
             return;
           }
+          //  console.log(112233)
           tempCom.style.left =
             parseInt(tempCom.style.left) -
             event.drop.el.getBoundingClientRect().left +
@@ -137,7 +144,7 @@ export default {
             parseInt(tempCom.style.top) -
             event.drop.el.getBoundingClientRect().top +
             "px";
-          // console.log(tempCom.style.left);
+           console.log(tempCom.style.left);
           if (
             parseInt(tempCom.style.left) < 0 ||
             parseInt(tempCom.style.top) < 0
@@ -147,11 +154,11 @@ export default {
             that.uniqueId++;
             tempCom.id = "cloneNode" + that.uniqueId;
             tempCom.setAttribute("className", "nodeOfClone");
-            console.log(tempCom.className);
+            // console.log(tempCom.className);
             //
             // tempCom.append();
             // console.log(tempCom);
-            event.drop.el.append(tempCom);
+            event.drop.el.appendChild(tempCom);
             that.jsPlumb.draggable(tempCom.id, {
               scope: "yhd",
               containment: true
@@ -253,7 +260,7 @@ export default {
       var that = this;
       e.stopPropagation();
       e.preventDefault();
-      console.log(e.target)
+      console.log(e.target);
       if (e.target.className === "deleteNode") {
         that.jsPlumb.remove(e.target.parentNode.id);
       }
