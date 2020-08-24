@@ -1,6 +1,6 @@
 # mindmap
 
-> A Vue.js project
+>一个基于Vue和JsPlumb开发的自定义思维导图
 
 ## Build Setup
 
