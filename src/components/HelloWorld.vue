@@ -40,12 +40,27 @@ export default {
         isTarget: true, //是否可以放置（连线终点）
         maxConnections: -1
       },
-      // 重点锚点配置
+      // 终点锚点配置
       strartConfig: {
         isSource: true, //是否可以拖动（作为连线起点）
         isTarget: false, //是否可以放置（连线终点）
         maxConnections: -1
-      }
+      },
+      // 节点记录
+      /**
+       * 思路
+       * nodeId，type 在节点增加的时候就可以赋值
+       * 会有一个类似‘保存’的按钮
+       * 点击按钮记录targetId，nodelevel
+       */
+      pageNodedata: [
+        {
+          nodeId: "", //节点ID
+          targetId: [], //该节点的指向节点的ID
+          type: "", //节点类型（基础节点中的哪一类）
+          nodeLevel: "" //节点的级别（0 ：起点节点，1：有一个父节点，2：有两个父节点）
+        }
+      ]
     };
   },
   created() {},
@@ -87,6 +102,9 @@ export default {
     this.reduceLine();
     // 设置左侧基础节点拖动
     this.basicDrags();
+
+
+    this.pageNodeClick()
   },
   computed: {},
   watch: {},
@@ -120,7 +138,7 @@ export default {
         scope: "yhd",
         containment: true,
         drop: function(event, ui) {
-          // console.log(event, ui, "+++++");
+          console.log(event, ui, "+++++");
           // console.log( event.drop.el)
           event.drop.el.style.position = "relative";
           // console.log(event.drop.el, "event.drop.el");
@@ -132,7 +150,7 @@ export default {
           // 如果拖动的是克隆节点，则仅仅让拖动不让执行后续
           // console.log(tempCom.id,'id');
           // console.log(tempCom.id=='','id');
-          if (tempCom.id !== "null"&&tempCom.id !=='') {
+          if (tempCom.id !== "null" && tempCom.id !== "") {
             return;
           }
           //  console.log(112233)
@@ -144,7 +162,7 @@ export default {
             parseInt(tempCom.style.top) -
             event.drop.el.getBoundingClientRect().top +
             "px";
-           console.log(tempCom.style.left);
+          //  console.log(tempCom.style.left);
           if (
             parseInt(tempCom.style.left) < 0 ||
             parseInt(tempCom.style.top) < 0
@@ -157,7 +175,7 @@ export default {
             // console.log(tempCom.className);
             //
             // tempCom.append();
-            // console.log(tempCom);
+            console.log(tempCom);
             event.drop.el.appendChild(tempCom);
             that.jsPlumb.draggable(tempCom.id, {
               scope: "yhd",
@@ -183,28 +201,32 @@ export default {
       that.jsPlumb.addEndpoint(
         ele,
         {
-          anchors: ["Right"]
+          anchors: ["Right"],
+          uuid: ele
         },
         that.strartConfig
       );
       that.jsPlumb.addEndpoint(
         ele,
         {
-          anchors: ["Left"]
+          anchors: ["Left"],
+          uuid: ele
         },
         that.targetConfig
       );
       that.jsPlumb.addEndpoint(
         ele,
         {
-          anchors: ["Top"]
+          anchors: ["Top"],
+          uuid: ele
         },
         that.targetConfig
       );
       that.jsPlumb.addEndpoint(
         ele,
         {
-          anchors: ["Bottom"]
+          anchors: ["Bottom"],
+          uuid: ele
         },
         that.strartConfig
       );
@@ -249,7 +271,7 @@ export default {
       // 鼠标移出左边的几个基准节点
       else if (type === "basicNodes") {
         ele.onmouseleave = function() {
-          console.log("鼠标移出");
+          // console.log("鼠标移出");
           // ele.children[0].style.display = "none";
         };
       }
@@ -260,7 +282,7 @@ export default {
       var that = this;
       e.stopPropagation();
       e.preventDefault();
-      console.log(e.target);
+      // console.log(e.target);
       if (e.target.className === "deleteNode") {
         that.jsPlumb.remove(e.target.parentNode.id);
       }
@@ -269,11 +291,19 @@ export default {
     reduceLine() {
       var that = this;
       this.jsPlumb.bind("click", function(conn, originalEvent) {
-        console.log(123);
+        console.log(originalEvent);
+        console.log(conn.sourceId, conn.targetId);
+
         if (confirm("确定删除此线吗？")) {
-          console.log(that.jsPlumb);
+          // console.log(that.jsPlumb);
           that.jsPlumb.deleteConnection(conn);
         }
+      });
+    },
+    pageNodeClick() {
+      var that = this;
+      this.jsPlumb.bind("click", function(node, originalEvent) {
+        console.log(node)
       });
     }
   }
