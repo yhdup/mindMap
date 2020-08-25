@@ -22,6 +22,7 @@
       </div>
       <div id="right">
         <h2>下方区域绘制流程图</h2>
+        <button @click="saveMind">保存</button>
         <div class="content" scope="yhd" style="position: relative" id="main" @click="reduceNode"></div>
       </div>
     </div>
@@ -56,7 +57,7 @@ export default {
       pageNodedata: [
         {
           nodeId: "", //节点ID
-          targetId: [], //该节点的指向节点的ID
+          targetId: [{}, {}], //该节点的指向节点的ID
           type: "", //节点类型（基础节点中的哪一类）
           nodeLevel: "" //节点的级别（0 ：起点节点，1：有一个父节点，2：有两个父节点）
         }
@@ -102,9 +103,6 @@ export default {
     this.reduceLine();
     // 设置左侧基础节点拖动
     this.basicDrags();
-
-
-    this.pageNodeClick()
   },
   computed: {},
   watch: {},
@@ -290,21 +288,18 @@ export default {
     // 单击根据提示连线删除连线
     reduceLine() {
       var that = this;
-      this.jsPlumb.bind("click", function(conn, originalEvent) {
-        console.log(originalEvent);
-        console.log(conn.sourceId, conn.targetId);
-
+      this.jsPlumb.bind("click", (conn, originalEvent) => {
+        // console.log(originalEvent);
+        // console.log(conn.sourceId, conn.targetId);
         if (confirm("确定删除此线吗？")) {
           // console.log(that.jsPlumb);
           that.jsPlumb.deleteConnection(conn);
         }
       });
     },
-    pageNodeClick() {
-      var that = this;
-      this.jsPlumb.bind("click", function(node, originalEvent) {
-        console.log(node)
-      });
+    // 保存按钮
+    saveMind() {
+      console.log(this.jsPlumb.getAllConnections(), ">>>>>>");
     }
   }
 };
