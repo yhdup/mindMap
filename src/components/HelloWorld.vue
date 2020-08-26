@@ -49,18 +49,31 @@ export default {
       },
       // 节点记录
       /**
-       * 思路
+       * 思路20202826
        * nodeId，type 在节点增加的时候就可以赋值
        * 会有一个类似‘保存’的按钮
        * 点击按钮记录targetId，nodelevel
+       *
+       * 节点获取在拖动进来的时候，连线的获取在点击保存的时候
+       *
+       * 删除连线后不用对pageNodeData做任何操作
+       * 因为点击保存时会重新获取线
+       *
+       * 删除节点后需要立即删除pageNodeData中的对应节点
+       * 因为点击保存不会重新获取节点
+       *
+       * 保存是手动的 如果点击保存后再次操作，则保存的不是最新的
+       * 新渲染的也是渲染点击保存那一刻的图
        */
-      pageNodedata: [
-        {
-          nodeId: "", //节点ID
-          targetId: [{}, {}], //该节点的指向节点的ID
-          type: "", //节点类型（基础节点中的哪一类）
-          nodeLevel: "" //节点的级别（0 ：起点节点，1：有一个父节点，2：有两个父节点）
-        }
+      pageNodeData: [
+        // {
+        //   nodeId: "", //节点ID
+        //   targetId: [{}], //该节点的指向节点的ID和类型
+        //   type: "", //节点类型（基础节点中的哪一类）
+        //   nodeLevel: "" //节点的级别（0 ：起点节点，1：有一个父节点，2：有两个父节点）
+        //    posLeft:''定位--left
+        //    posTop:""定位--top
+        //  }
       ]
     };
   },
@@ -127,7 +140,6 @@ export default {
     },
     drop(e) {
       e.preventDefault();
-      console.log(e, "------------");
     },
     drapNodes() {
       let that = this;
@@ -136,22 +148,12 @@ export default {
         scope: "yhd",
         containment: true,
         drop: function(event, ui) {
-          console.log(event, ui, "+++++");
-          // console.log( event.drop.el)
+          // console.log(event, ui, "+++++");
           event.drop.el.style.position = "relative";
-          // console.log(event.drop.el, "event.drop.el");
-          // console.log(3333333)
           let tempCom = event.e.target.cloneNode(true);
-          // console.log(tempCom, "tempCom");
-          // tempCom.appendChild();
-          // console.log(tempCom, 888888888);
-          // 如果拖动的是克隆节点，则仅仅让拖动不让执行后续
-          // console.log(tempCom.id,'id');
-          // console.log(tempCom.id=='','id');
           if (tempCom.id !== "null" && tempCom.id !== "") {
             return;
           }
-          //  console.log(112233)
           tempCom.style.left =
             parseInt(tempCom.style.left) -
             event.drop.el.getBoundingClientRect().left +
@@ -162,25 +164,60 @@ export default {
             "px";
           //  console.log(tempCom.style.left);
           if (
+            // 当元素未完全拖动进来
             parseInt(tempCom.style.left) < 0 ||
             parseInt(tempCom.style.top) < 0
           ) {
+            // some code
           } else {
+            // 给克隆元素绑定type
+            /**
+             *
+             * 根据基础node的id来判断type
+             * 克隆节点的源节点ID是event.drag.el.id
+             *
+             */
+            let sourceNodeId = event.drag.el.id;
+            // console.log(sourceNodeId);
+            switch (sourceNodeId) {
+              case "node1": {
+                tempCom.type = "node1";
+                break;
+              }
+              case "node2": {
+                tempCom.type = "node2";
+                break;
+              }
+              case "node3": {
+                tempCom.type = "node3";
+                break;
+              }
+              case "node4": {
+                tempCom.type = "node4";
+                break;
+              }
+            }
             // 给克隆元素绑定唯一ID 让其后续可拖拽
             that.uniqueId++;
             tempCom.id = "cloneNode" + that.uniqueId;
             tempCom.setAttribute("className", "nodeOfClone");
-            // console.log(tempCom.className);
-            //
-            // tempCom.append();
-            console.log(tempCom);
             event.drop.el.appendChild(tempCom);
             that.jsPlumb.draggable(tempCom.id, {
               scope: "yhd",
               containment: true
             });
             that.addConnect(tempCom.id);
-            // console.log(tempCom, "123");
+            // 节点数据记录
+            // 记录已有数据，初始化格式
+            that.pageNodeData.push({
+              nodeId: tempCom.id,
+              type: tempCom.type,
+              targetId: [],
+              nodeLevel: "",
+              posLeft: "",
+              posTop: ""
+            });
+            // console.log(that.pageNodeData, "that.pageNodeData");
           }
         }
       });
@@ -275,14 +312,29 @@ export default {
       }
     },
     // 点击 X 删除一个节点
-    // 通过事件捕获做的
+    // 通过事件捕获
+    // 删除节点后需要删除pageNodeData中的相应节点
     reduceNode(e) {
       var that = this;
       e.stopPropagation();
       e.preventDefault();
       // console.log(e.target);
       if (e.target.className === "deleteNode") {
-        that.jsPlumb.remove(e.target.parentNode.id);
+        console.log(e.target.parentNode.id);
+
+        if (confirm("确定删除此节点吗？")) {
+          that.jsPlumb.remove(e.target.parentNode.id);
+          // 删除节点的同时删除pageNodeData中的该节点
+          that.pageNodeData.forEach(function(item) {
+            if (item.nodeId === e.target.parentNode.id) {
+              // console.log(item);
+              // console.log(that.pageNodeData.indexOf(item))
+              
+               that.pageNodeData.splice(that.pageNodeData.indexOf(item),1)
+              // this.pageNodeData
+            }
+          });
+        }
       }
     },
     // 单击根据提示连线删除连线
@@ -299,7 +351,40 @@ export default {
     },
     // 保存按钮
     saveMind() {
-      console.log(this.jsPlumb.getAllConnections(), ">>>>>>");
+      for (let i = 0; i < this.pageNodeData.length; i++) {
+        this.pageNodeData[i].targetId = [];
+      }
+      // console.log(this.jsPlumb.getAllConnections(), ">>>>>>");
+      // 保存所有连线的起点终点
+      let lineArr = [];
+      this.jsPlumb.getAllConnections().forEach(function(item) {
+        lineArr.push({
+          targetId: item.targetId,
+          sourceId: item.sourceId
+        });
+      });
+      // 将连线起点终点保存给对应节点
+      this.pageNodeData.forEach(function(item) {
+        lineArr.forEach(function(utem) {
+          if (item.nodeId === utem.sourceId) {
+            item.targetId.push({ targetTo: utem.targetId });
+          }
+        });
+      });
+
+      // 获取每个节点的定位信息
+      let nodeArr = Array.from(document.getElementById("main").children);
+      console.log(nodeArr);
+      this.pageNodeData.forEach(function(item) {
+        nodeArr.forEach(function(utem) {
+          if (item.nodeId === utem.id) {
+            item.posLeft = utem.style.left;
+            item.posTop = utem.style.top;
+            // item.targetId.push({ targetTo: utem.targetId });
+          }
+        });
+      });
+      console.log(this.pageNodeData);
     }
   }
 };

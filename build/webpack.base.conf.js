@@ -31,20 +31,20 @@ module.exports = {
   },
   module: {
     rules: [
-      {
-        test: /.js$/,
-        enforce: 'post', // post-loader处理
-        loader: 'es3ify-loader'
-    },
-    {
-      test: /\.js$/,
-      loader: 'babel-loader',
-      
-      query: {
-        presets: ['es2015-loose']
-      }
-      
-  },
+    //   {
+    //     test: /.js$/,
+    //     enforce: 'post', // post-loader处理
+    //     loader: 'es3ify-loader'
+    // },
+    // {
+    //             test: /\.js$/,
+    //             loader: 'babel-loader',
+                
+    //             // query: {
+    //             //   presets: ['es2015-loose']
+    //             // }
+                
+    //         },
       {
         test: /\.vue$/,
         loader: 'vue-loader',
