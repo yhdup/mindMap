@@ -23,6 +23,7 @@
       <div id="right">
         <h2>下方区域绘制流程图</h2>
         <button @click="saveMind">保存</button>
+        <button @click="deleteMindData">清空localstorage</button>
         <div class="content" scope="yhd" style="position: relative" id="main" @click="reduceNode"></div>
       </div>
     </div>
@@ -34,6 +35,9 @@ export default {
   data() {
     return {
       jsPlumb: null,
+      nodeDes: "", //节点内的文字
+      nodeCss: "", // 节点样式
+      nodeId: "",
       uniqueId: 0, //给克隆节点绑定唯一ID
       // 起点锚点配置
       targetConfig: {
@@ -74,7 +78,8 @@ export default {
         //    posLeft:''定位--left
         //    posTop:""定位--top
         //  }
-      ]
+      ],
+      storageData: {}
     };
   },
   created() {},
@@ -82,7 +87,6 @@ export default {
     //  初始化jsplumb
     this.jsPlumb = this.$jsPlumb.getInstance({
       Container: "root", //选择器id
-      // EndpointStyle: { radius: 8, fill: "#acd" }, //端点样式
       Endpoint: ["Dot", { radius: 10, fill: "#acd" }],
       PaintStyle: { stroke: "#000000", strokeWidth: 2 }, // 绘画样式，默认8px线宽  #456
       HoverPaintStyle: { stroke: "#1E90FF" }, // 默认悬停样式  默认为null
@@ -100,16 +104,97 @@ export default {
         ]
       ],
       Connector: [
-        "Bezier",
+        "Flowchart",
         {
-          stub: [80, 120],
-          gap: 10,
-          cornerRadius: 80,
+          // stub: [80, 120],
+          // gap: 10,
+          // cornerRadius: 80,
           alwaysRespectStubs: true
         }
       ] //要使用的默认连接器的类型：折线，流程等
       // DrapOptions: { cursor: "crosshair", zIndex: 2000 }
     });
+
+    // 回显
+
+    if (localStorage.getItem("pageNodeData")) {
+      let getNodeArr = JSON.parse(localStorage.getItem("pageNodeData"))
+        .mindData;
+      console.log(getNodeArr);
+      let that = this;
+      let dom = "";
+      let innerSpan = "";
+      // 通过type给动态创建的节点绑定样式和文字描述
+      getNodeArr.forEach(function(item) {
+        switch (item.type) {
+          case "node1": {
+            that.nodeDes = "节点1";
+            that.nodeCss = "";
+            break;
+          }
+          case "node2": {
+            that.nodeDes = "节点2";
+            that.nodeCss = "node2css";
+            break;
+          }
+          case "node3": {
+            that.nodeDes = "节点3";
+            that.nodeCss = "node3css";
+            break;
+          }
+          case "node4": {
+            that.nodeDes = "节点4";
+            that.nodeCss = "node4css";
+            break;
+          }
+        }
+        // 动态创建DOM
+        dom = document.createElement("div");
+        innerSpan = `${that.nodeDes}<span class="deleteNode">X</span>`;
+        dom.innerHTML = innerSpan;
+        dom.style.position = "absolute";
+        dom.style.left = item.posLeft;
+        dom.style.top = item.posTop;
+        dom.id = item.nodeId;
+        // console.log(dom);
+        // DOM插入
+        document.getElementById("main").appendChild(dom);
+        // DOM绑定类名
+        dom.setAttribute("class", that.nodeCss);
+        dom.classList.add("node");
+        // console.log(document.getElementById(item.nodeId),":::::::::::")
+        // DOM添加锚点
+        that.addConnect(item.nodeId);
+
+        that.jsPlumb.draggable(item.nodeId, {
+        
+          scope: "yhd",
+          containment: true,
+          drag: function() {}
+        });
+
+        // DOM添加初始连线
+        if (item.targetId.length) {
+          item.targetId.forEach(function(utem) {
+            console.log(item.nodeId, utem.targetTo, "utem.targetTo");
+
+            that.jsPlumb.connect({
+              source: item.nodeId,
+              target: utem.targetTo
+            });
+          });
+        }
+      });
+    }
+
+    //   this.$nextTick(function() {
+    //     this.jsPlumb.connect({
+    //       scope: "yhd",
+    //       source: "cloneNode1",
+    //       target: "cloneNode2 "
+    //     });
+    //   });
+    // console.log(this.jsPlumb);
     // 设置元素存放区域
     this.drapNodes();
     // 去掉连线
@@ -198,9 +283,10 @@ export default {
               }
             }
             // 给克隆元素绑定唯一ID 让其后续可拖拽
+            console.log(event.drop.el, " event.drop.el");
             that.uniqueId++;
             tempCom.id = "cloneNode" + that.uniqueId;
-            tempCom.setAttribute("className", "nodeOfClone");
+            // tempCom.setAttribute("className", "nodeOfClone");
             event.drop.el.appendChild(tempCom);
             that.jsPlumb.draggable(tempCom.id, {
               scope: "yhd",
@@ -329,8 +415,7 @@ export default {
             if (item.nodeId === e.target.parentNode.id) {
               // console.log(item);
               // console.log(that.pageNodeData.indexOf(item))
-              
-               that.pageNodeData.splice(that.pageNodeData.indexOf(item),1)
+              that.pageNodeData.splice(that.pageNodeData.indexOf(item), 1);
               // this.pageNodeData
             }
           });
@@ -374,7 +459,7 @@ export default {
 
       // 获取每个节点的定位信息
       let nodeArr = Array.from(document.getElementById("main").children);
-      console.log(nodeArr);
+      // console.log(nodeArr);
       this.pageNodeData.forEach(function(item) {
         nodeArr.forEach(function(utem) {
           if (item.nodeId === utem.id) {
@@ -384,12 +469,23 @@ export default {
           }
         });
       });
+
+      // 每个导图应该都会有单独的ID 也应该存进localstorage中
+      let storageData = {
+        mindData: this.pageNodeData
+      };
+
+      console.log(storageData);
+      localStorage.setItem("pageNodeData", JSON.stringify(storageData));
       console.log(this.pageNodeData);
+    },
+    deleteMindData() {
+      localStorage.removeItem("pageNodeData");
     }
   }
 };
 </script>
-<style lang='scss' scoped>
+<style lang='scss' >
 body {
   text-align: center;
 }
