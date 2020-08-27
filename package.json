@@ -10,8 +10,6 @@
     "build": "node build/build.js"
   },
   "dependencies": {
-    "@antv/g6": "^3.6.1",
-    // "es3ify-loader": "^0.2.0",
     "jsplumb": "^2.14.5",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1"
