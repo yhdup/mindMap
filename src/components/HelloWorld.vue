@@ -38,7 +38,6 @@ export default {
       nodeDes: "", //节点内的文字
       nodeCss: "", // 节点样式
       nodeId: "",
-      uniqueId: 0, //给克隆节点绑定唯一ID
       // 起点锚点配置
       targetConfig: {
         isSource: false, //是否可以拖动（作为连线起点）
@@ -156,28 +155,22 @@ export default {
         dom.style.left = item.posLeft;
         dom.style.top = item.posTop;
         dom.id = item.nodeId;
-        // console.log(dom);
         // DOM插入
         document.getElementById("main").appendChild(dom);
         // DOM绑定类名
         dom.setAttribute("class", that.nodeCss);
         dom.classList.add("node");
-        // console.log(document.getElementById(item.nodeId),":::::::::::")
         // DOM添加锚点
         that.addConnect(item.nodeId);
-
-        that.jsPlumb.draggable(item.nodeId, {
-        
+        that.jsPlumb.draggable(item.nodeId, {      
           scope: "yhd",
           containment: true,
           drag: function() {}
         });
-
         // DOM添加初始连线
         if (item.targetId.length) {
           item.targetId.forEach(function(utem) {
             console.log(item.nodeId, utem.targetTo, "utem.targetTo");
-
             that.jsPlumb.connect({
               source: item.nodeId,
               target: utem.targetTo
@@ -201,6 +194,20 @@ export default {
     this.reduceLine();
     // 设置左侧基础节点拖动
     this.basicDrags();
+
+// 不让同一个节点自我相连  
+// 可用作后期的指定节点不能相互连接
+
+  this.jsPlumb.bind('connection',function(info,originalEvent){
+    // console.log(12313)
+    // console.log(info)
+    var that = this
+    if(info.sourceId === info.targetId){
+      console.log('连接了同一个节点');
+      this.deleteConnection(info.connection)
+      }
+  })
+
   },
   computed: {},
   watch: {},
@@ -284,8 +291,8 @@ export default {
             }
             // 给克隆元素绑定唯一ID 让其后续可拖拽
             console.log(event.drop.el, " event.drop.el");
-            that.uniqueId++;
-            tempCom.id = "cloneNode" + that.uniqueId;
+      
+            tempCom.id = Math.random().toString(36).substr(2,4) +  Date.now().toString(36).substr(4,5);;
             // tempCom.setAttribute("className", "nodeOfClone");
             event.drop.el.appendChild(tempCom);
             that.jsPlumb.draggable(tempCom.id, {
@@ -430,6 +437,7 @@ export default {
         // console.log(conn.sourceId, conn.targetId);
         if (confirm("确定删除此线吗？")) {
           // console.log(that.jsPlumb);
+          console.log(conn)
           that.jsPlumb.deleteConnection(conn);
         }
       });
