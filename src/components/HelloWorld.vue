@@ -133,11 +133,10 @@ export default {
     },
     // 回显函数
     reShowMind() {
-      
       if (localStorage.getItem("pageNodeData")) {
         let getNodeArr = JSON.parse(localStorage.getItem("pageNodeData"))
           .mindData;
-        console.log(getNodeArr)
+        console.log(getNodeArr);
         this.pageNodeData = getNodeArr;
         let that = this;
         let dom = "";
@@ -191,8 +190,12 @@ export default {
         getNodeArr.forEach(item => {
           if (item.targetInfo.length) {
             item.targetInfo.forEach(utem => {
-              console.log(item.nodeId, utem.targetTo, "utem.targetTo");
-              this.connectLine(item.nodeId, utem.targetTo);
+              // console.log(utem);
+              // console.log(item.nodeId, utem.targetTo, "utem.targetTo");
+              this.connectLine(item.nodeId, utem.targetTo, [
+                utem.sourceAnchor,
+                utem.targetAnchor
+              ]);
             });
           }
         });
@@ -288,7 +291,7 @@ export default {
               }
             }
             // 给克隆元素绑定唯一ID 让其后续可拖拽
-            console.log(event.drop.el, " event.drop.el");
+            // console.log(event.drop.el, " event.drop.el");
 
             tempCom.id =
               Math.random()
@@ -366,12 +369,11 @@ export default {
       );
     },
     // // 设置连接线
-    connectLine(sourceId, targetId,anchorPoints) {
+    connectLine(sourceId, targetId, anchorPoints) {
       this.jsPlumb.connect({
         source: sourceId,
         target: targetId,
-        anchor:anchorPoints
-
+        anchor: anchorPoints
       });
     },
     // 鼠标移入
@@ -445,23 +447,44 @@ export default {
         this.pageNodeData[i].targetInfo = [];
       }
       console.log(this.jsPlumb.getAllConnections(), ">>>>>>");
+
       // 保存所有连线的起点终点
       let lineArr = [];
       this.jsPlumb.getAllConnections().forEach(function(item) {
+        console.log(item.endpoints[1].anchor, "这是终点");
+        console.log(item.endpoints[0].anchor, "这是起点");
         lineArr.push({
           targetId: item.targetId,
-          sourceId: item.sourceId
+          sourceId: item.sourceId,
+          // targetAnchor: item.endpoints[1].anchor.anchors
+          //   ? item.endpoints[1].anchor.anchors[0].type
+          //   : item.endpoints[1].anchor.type,
+          // // item.endpoints[1].anchor.anchors[0].type,
+          // sourceAnchor: item.endpoints[0].anchor.anchors
+          //   ? item.endpoints[0].anchor.anchors[0].type
+          //   : item.endpoints[0].anchor.type
+
+          targetAnchor: item.endpoints[1].anchor.anchors[0].type,
+          // item.endpoints[1].anchor.anchors[0].type,
+          sourceAnchor:
+            item.endpoints[0].anchor.anchors.length > 1
+              ? item.endpoints[0].anchor.anchors[1].type
+              : item.endpoints[0].anchor.anchors[0].type
         });
       });
+      console.log(lineArr);
       // 将连线起点终点保存给对应节点
       this.pageNodeData.forEach(function(item) {
         lineArr.forEach(function(utem) {
           if (item.nodeId === utem.sourceId) {
-            item.targetInfo.push({ targetTo: utem.targetId });
+            item.targetInfo.push({
+              targetTo: utem.targetId,
+              sourceAnchor: utem.sourceAnchor,
+              targetAnchor: utem.targetAnchor
+            });
           }
         });
       });
-
       // 获取每个节点的定位信息
       let nodeArr = Array.from(document.getElementById("main").children);
       // console.log(nodeArr);
@@ -470,7 +493,6 @@ export default {
           if (item.nodeId === utem.id) {
             item.posLeft = utem.style.left;
             item.posTop = utem.style.top;
-            
           }
         });
       });
