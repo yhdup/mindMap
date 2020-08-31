@@ -3,28 +3,29 @@
   <div>
     <div id="root">
       <div id="left">
-        <div class="node" id="node1">
-          流程1
-          <span class="deleteNode">X</span>
+        <div class="dataSet" title="数据集">
+          <!-- <div class="node node5css" id="node5" title="线性回归"></div> -->
         </div>
-        <div class="node node2css" id="node2">
-          流程2
-          <span class="deleteNode">X</span>
-        </div>
-        <div class="node node3css" id="node3">
-          流程3
-          <span class="deleteNode">X</span>
-        </div>
-        <div class="node node4css" id="node4">
-          流程4
-          <span class="deleteNode">X</span>
+        <div class="algorithmLibrary" title="算法库">
+          <span class="algorithmLibraryTitle">算法库</span>
+          <div class="statisticalAnalysis" title="统计分析">
+            <span class="statisticalAnalysisTitle">统计分析</span>
+            <div class="nodeCollection">
+              <div class="node" id="node1" title="ols回归"></div>
+              <div class="node node2css" id="node2" title="逐步回归"></div>
+              <div class="node node3css" id="node3" title="逻辑回归"></div>
+              <div class="node node4css" id="node4" title="线性回归"></div>
+            </div>
+          </div>
         </div>
       </div>
       <div id="right">
         <h2>下方区域绘制流程图</h2>
         <button @click="saveMind">保存</button>
         <button @click="deleteMindData">清空localstorage</button>
-        <div class="content" scope="yhd" style="position: relative" id="main" @click="reduceNode"></div>
+      
+        <div class="content" scope="yhd" style="position: relative" id="main" @click="reduceNode">
+        </div>
       </div>
     </div>
   </div>
@@ -103,7 +104,7 @@ export default {
     initMind() {
       this.jsPlumb = this.$jsPlumb.getInstance({
         Container: "root", //选择器id
-         Endpoint: ["Dot", { radius: 10, fill: "#ffffff" }],
+        Endpoint: ["Dot", { radius: 5, fill: "#ffffff" }],
         // Endpoint: [
         //   "Image ",
         //   { radius: 10, fill: "#ffffff", url: "../assets//arrow.png" }
@@ -116,6 +117,8 @@ export default {
             "Arrow",
             {
               location: 1,
+              width: 11,
+              length: 11,
               paintStyle: {
                 // stroke: "#ffffff",
                 fill: "#ffffff"
@@ -127,7 +130,7 @@ export default {
           "Flowchart",
           {
             stub: [10, 10], //连接线最低长度
-            gap: 20, //连接线与锚点的距离
+            gap: 10, //连接线与锚点的距离
             cornerRadius: 20, //连接线转角弧度
             alwaysRespectStubs: true
           }
@@ -149,34 +152,42 @@ export default {
         getNodeArr.forEach(function(item) {
           switch (item.type) {
             case "node1": {
-              that.nodeDes = "节点1";
+              that.nodeDes = "ols回归";
               that.nodeCss = "";
               break;
             }
             case "node2": {
-              that.nodeDes = "节点2";
+              that.nodeDes = "逐步回归";
               that.nodeCss = "node2css";
               break;
             }
             case "node3": {
-              that.nodeDes = "节点3";
+              that.nodeDes = "逻辑回归";
               that.nodeCss = "node3css";
               break;
             }
             case "node4": {
-              that.nodeDes = "节点4";
+              that.nodeDes = "线性回归";
               that.nodeCss = "node4css";
               break;
             }
           }
           // 动态创建DOM
           dom = document.createElement("div");
-          innerSpan = `${that.nodeDes}<span class="deleteNode">X</span>`;
-          dom.innerHTML = innerSpan;
+          // innerSpan = `${that.nodeDes}<span class="deleteNode">X</span>`;
+          dom.innerText = that.nodeDes;
           dom.style.position = "absolute";
           dom.style.left = item.posLeft;
           dom.style.top = item.posTop;
           dom.id = item.nodeId;
+          dom.style.width = 96 + "px";
+          dom.style.height = 32 + "px";
+          dom.style.backgroundPosition = "10px";
+          dom.style.lineHeight = 26 + "px";
+          dom.style.textAlign = "right";
+          dom.style.fontSize = 14 + "px";
+          dom.style.paddingRight = 10 + "px";
+          dom.style.boxSizing = "border-box";
           // DOM插入
           document.getElementById("main").appendChild(dom);
           // DOM绑定类名
@@ -221,6 +232,7 @@ export default {
     basicDrags() {
       let that = this;
       let nodeArr = Array.from(document.getElementsByClassName("node"));
+
       nodeArr.forEach(function(item) {
         that.jsPlumb.draggable(item.id, {
           clone: true,
@@ -259,6 +271,14 @@ export default {
             parseInt(tempCom.style.top) -
             event.drop.el.getBoundingClientRect().top +
             "px";
+          tempCom.style.width = 96 + "px";
+          tempCom.style.height = 32 + "px";
+          tempCom.style.backgroundPosition = "10px";
+          tempCom.style.lineHeight = 26 + "px";
+          tempCom.style.textAlign = "right";
+          tempCom.style.fontSize = 14 + "px";
+          tempCom.style.paddingRight = 10 + "px";
+          tempCom.style.boxSizing = "border-box";
           //  console.log(tempCom.style.left);
           if (
             // 当元素未完全拖动进来
@@ -276,27 +296,36 @@ export default {
              */
             let sourceNodeId = event.drag.el.id;
             // console.log(sourceNodeId);
+            // let nodeInner = "";
             switch (sourceNodeId) {
               case "node1": {
+                that.nodeDes = "ols回归";
                 tempCom.type = "node1";
+
                 break;
               }
               case "node2": {
                 tempCom.type = "node2";
+                that.nodeDes = "逐步回归";
                 break;
               }
               case "node3": {
                 tempCom.type = "node3";
+                that.nodeDes = "逻辑回归";
                 break;
               }
               case "node4": {
                 tempCom.type = "node4";
+                that.nodeDes = "线性回归";
                 break;
               }
             }
-            // 给克隆元素绑定唯一ID 让其后续可拖拽
-            // console.log(event.drop.el, " event.drop.el");
+            // nodeInner = `${that.nodeDes}<span class="deleteNode"></span>`;
+            // nodeInner = `${that.nodeDes}<span class="deleteNode"></span>`;
+            tempCom.innerText = that.nodeDes;
 
+            console.log(tempCom, "tempCom");
+            // 给克隆元素绑定唯一ID 让其后续可拖拽
             tempCom.id =
               Math.random()
                 .toString(36)
@@ -524,55 +553,98 @@ body {
   width: 100%;
   height: 100vh;
   display: flex;
-  justify-content: space-between; 
+  justify-content: space-between;
 }
 
 #left {
-  width: 243px;
-  height: 50vh;
-  padding: 32px;
+  // width: 169px;
+  // height: 50vh;
+  // padding: 8px;
   border: 2px solid darkgray;
   box-sizing: border-box;
-  background-color: #1B2128;
+  background-color: #1b2128;
+  .nodeCollection {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  // 算法库
+  .algorithmLibrary {
+    width: 170px;
+    color: #fff;
+    // 算法库title
+    .algorithmLibraryTitle{
+      display: block;
+      width: 100%;
+      height: 32px;
+      background-color: #27303A;
+      font-size: 14px;
+      text-align: center;
+      line-height: 32px;
+    }
+    .statisticalAnalysis {
+      padding: 8px;
+      text-align: left;
+      .statisticalAnalysisTitle{
+        text-align: left;
+        color: #fff;
+        font-size: 14px;
+        margin-bottom: 7px;
+        display: block;
+      }
+      color: #fff;
+    }
+  }
 }
 
 .node {
-  box-shadow: 2px 2px 19px #aaa;
-  border-radius: 6px;
   opacity: 0.8;
   filter: alpha(opacity=80);
-  border: 1px solid #346789;
-  width: 150px;
   text-align: center;
   z-index: 20;
   background-color: #eeeeef;
   color: black;
-  padding: 10px;
-  font-size: 9pt;
+  padding: 3px;
   cursor: pointer;
-  height: 50px;
-  /*line-height: 50px;*/
-  background: lightskyblue;
-  position: absolute;
+  background: url("../assets/olsRegression.svg") no-repeat;
+  background-size: 16px 16px;
+  width: 20px;
+  height: 20px;
+  background-position: center;
+  color: #fff;
+  // position: absolute;
+  background-color: #384452;
+  // margin-top: 5px;
+  // margin-left: 8px;
 }
-
 .node:hover {
-  box-shadow: 2px 2px 19px #444;
-  opacity: 0.8;
-  filter: alpha(opacity=80);
+  // box-shadow: 2px 2px 19px #444;
+  // opacity: 0.8;
+  // filter: alpha(opacity=80);
 }
 .node2css {
-  background: orange;
+  // background: orange;
   top: 150px;
+  background: url("../assets/stepwiseRegression.svg") no-repeat;
+  background-size: 16px 16px;
+  background-color: #384452;
+  background-position: center;
 }
 .node3css {
-  background: indianred;
+  background: url("../assets/logisticRegression.svg") no-repeat;
+  background-size: 16px 16px;
+  background-color: #384452;
+  background-position: center;
   top: 250px;
 }
 .node4css {
-  background: greenyellow;
+  background: url("../assets/linerRegression.svg") no-repeat;
+  background-size: 16px 16px;
+  background-color: #384452;
+  background-position: center;
   top: 350px;
 }
+
 
 #right {
   width: calc(100% - 260px);

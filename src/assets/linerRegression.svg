@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon/线性回归</title>
+    <defs>
+        <filter id="filter-1">
+            <feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 1.000000 0 0 0 0 1.000000 0 0 0 0 1.000000 0 0 0 1.000000 0"></feColorMatrix>
+        </filter>
+    </defs>
+    <g id="深色部分" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="动态研究-首页" transform="translate(-308.000000, -208.000000)">
+            <g id="编组" transform="translate(308.000000, 208.000000)" filter="url(#filter-1)">
+                <g>
+                    <polygon id="Fill-1" fill="#353535" points="0 -0.000114285714 0 15.9998857 16 15.9998857 16 14.8574095 1.14285714 14.8574095 1.14285714 -0.000114285714"></polygon>
+                    <polygon id="Fill-2" fill="#353535" points="2.43897143 13.0431619 1.70487619 12.1669714 14.3384 1.57649524 15.0724952 2.45230476"></polygon>
+                    <polygon id="Fill-3" fill="#353535" points="3.1896 13.7313143 4.1256 14.3876952 13.5876952 0.887885714 12.6513143 0.231885714"></polygon>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
