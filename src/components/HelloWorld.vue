@@ -103,9 +103,13 @@ export default {
     initMind() {
       this.jsPlumb = this.$jsPlumb.getInstance({
         Container: "root", //选择器id
-        Endpoint: ["Dot", { radius: 10, fill: "#acd" }],
-        PaintStyle: { stroke: "#000000", strokeWidth: 2 }, // 绘画样式，默认8px线宽  #456
-        HoverPaintStyle: { stroke: "#1E90FF" }, // 默认悬停样式  默认为null
+         Endpoint: ["Dot", { radius: 10, fill: "#ffffff" }],
+        // Endpoint: [
+        //   "Image ",
+        //   { radius: 10, fill: "#ffffff", url: "../assets//arrow.png" }
+        // ],
+        PaintStyle: { stroke: "#ffffff", strokeWidth: 1 }, // 连线绘画样式，默认8px线宽  #456
+        HoverPaintStyle: { stroke: "#217FDF" }, // 连线默认悬停样式  默认为null
         maxConnections: -1,
         ConnectionOverlays: [
           [
@@ -113,8 +117,8 @@ export default {
             {
               location: 1,
               paintStyle: {
-                stroke: "#00688B",
-                fill: "#00688B"
+                // stroke: "#ffffff",
+                fill: "#ffffff"
               }
             }
           ]
@@ -122,9 +126,9 @@ export default {
         Connector: [
           "Flowchart",
           {
-            // stub: [80, 120],
-            // gap: 10,
-            // cornerRadius: 80,
+            stub: [10, 10], //连接线最低长度
+            gap: 20, //连接线与锚点的距离
+            cornerRadius: 20, //连接线转角弧度
             alwaysRespectStubs: true
           }
         ] //要使用的默认连接器的类型：折线，流程等
@@ -328,11 +332,11 @@ export default {
     addAnchor(ele) {
       //基本连接线样式
       var connectorPaintStyle = {
-        lineWidth: 4,
-        strokeStyle: "#61B7CF",
-        joinstyle: "round",
-        outlineColor: "white",
-        outlineWidth: 2
+        // lineWidth: 4,
+        // strokeStyle: "#61B7CF",
+        // joinstyle: "round",
+        // outlineColor: "white",
+        // outlineWidth: 2
       };
       let that = this;
       that.jsPlumb.addEndpoint(
@@ -463,7 +467,6 @@ export default {
           // sourceAnchor: item.endpoints[0].anchor.anchors
           //   ? item.endpoints[0].anchor.anchors[0].type
           //   : item.endpoints[0].anchor.type
-
           targetAnchor: item.endpoints[1].anchor.anchors[0].type,
           // item.endpoints[1].anchor.anchors[0].type,
           sourceAnchor:
@@ -521,7 +524,7 @@ body {
   width: 100%;
   height: 100vh;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between; 
 }
 
 #left {
@@ -530,6 +533,7 @@ body {
   padding: 32px;
   border: 2px solid darkgray;
   box-sizing: border-box;
+  background-color: #1B2128;
 }
 
 .node {
@@ -589,6 +593,7 @@ body {
   width: 100%;
   height: calc(100% - 75px);
   border: 1px solid red;
+  background-color: #1b2128;
 }
 
 // 克隆节点01
