@@ -2,29 +2,34 @@
 <template>
   <div>
     <div id="root">
-      <div id="left">
-        <div class="dataSet" title="数据集">
-          <!-- <div class="node node5css" id="node5" title="线性回归"></div> -->
-        </div>
-        <div class="algorithmLibrary" title="算法库">
-          <span class="algorithmLibraryTitle">算法库</span>
-          <div class="statisticalAnalysis" title="统计分析">
-            <span class="statisticalAnalysisTitle">统计分析</span>
-            <div class="nodeCollection">
-              <div class="node" id="node1" title="ols回归"></div>
-              <div class="node node2css" id="node2" title="逐步回归"></div>
-              <div class="node node3css" id="node3" title="逻辑回归"></div>
-              <div class="node node4css" id="node4" title="线性回归"></div>
-            </div>
-          </div>
-        </div>
-      </div>
       <div id="right">
         <h2>下方区域绘制流程图</h2>
         <button @click="saveMind">保存</button>
         <button @click="deleteMindData">清空localstorage</button>
-      
         <div class="content" scope="yhd" style="position: relative" id="main" @click="reduceNode">
+          <div id="nodeMenu">
+            <!-- 通过按钮控制部分 -->
+            <div class="operateMenu">
+              <!-- 数据集本集 -->
+              <div class="node node5css" id="node5" title="数据集"></div>
+              <!-- 算法库控制按钮 -->
+              <span class="algorithmButton" @click="toggleAlgorithm()"></span>
+            </div>
+            <!-- 主体菜单部分 -->
+            <!-- 算法库 -->
+            <div class="algorithmLibrary" title="算法库" v-show="algorithmFlag">
+              <span class="collectionTitle">算法库</span>
+              <div class="statisticalAnalysis" title="统计分析">
+                <span class="statisticalAnalysisTitle">统计分析</span>
+                <div class="nodeCollection">
+                  <div class="node" id="node1" title="ols回归"></div>
+                  <div class="node node2css" id="node2" title="逐步回归"></div>
+                  <div class="node node3css" id="node3" title="逻辑回归"></div>
+                  <div class="node node4css" id="node4" title="线性回归"></div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -35,21 +40,28 @@ export default {
   components: {},
   data() {
     return {
+      // dataFlag: false, //数据集菜单显示判断，
+      algorithmFlag: false, //算法库菜单显示判断，
       jsPlumb: null,
       nodeDes: "", //节点内的文字
       nodeCss: "", // 节点样式
       nodeId: "",
+      // dynamicAnchors: [
+      //  "Top", "Bottom" ,'Left',"Right"
+      // ],
       // 起点锚点配置
       targetConfig: {
         isSource: false, //是否可以拖动（作为连线起点）
         isTarget: true, //是否可以放置（连线终点）
-        maxConnections: -1
+        maxConnections: -1,
+   
       },
       // 终点锚点配置
       strartConfig: {
         isSource: true, //是否可以拖动（作为连线起点）
         isTarget: false, //是否可以放置（连线终点）
-        maxConnections: -1
+        maxConnections: -1,
+     
       },
       // 节点记录
       /**
@@ -104,12 +116,19 @@ export default {
     initMind() {
       this.jsPlumb = this.$jsPlumb.getInstance({
         Container: "root", //选择器id
-        Endpoint: ["Dot", { radius: 5, fill: "#ffffff" }],
+        //  Endpoint: ["Dot", { radius: 5, fill: "#ffffff" }],
+        // anchor:[ "Perimeter", { shape:"Circle",anchorCount:20 } ],
         // Endpoint: [
         //   "Image ",
         //   { radius: 10, fill: "#ffffff", url: "../assets//arrow.png" }
         // ],
-        PaintStyle: { stroke: "#ffffff", strokeWidth: 1 }, // 连线绘画样式，默认8px线宽  #456
+        Endpoint: "Dot",
+        // anchor:[ "Perimeter", { shape:"Circle",anchorCount:150 } ],
+        EndpointStyle: { radius: 4, fill: "#384452" },
+        PaintStyle: {
+          stroke: "#ffffff",
+          strokeWidth: 1
+        },
         HoverPaintStyle: { stroke: "#217FDF" }, // 连线默认悬停样式  默认为null
         maxConnections: -1,
         ConnectionOverlays: [
@@ -169,6 +188,11 @@ export default {
             case "node4": {
               that.nodeDes = "线性回归";
               that.nodeCss = "node4css";
+              break;
+            }
+            case "node5": {
+              that.nodeDes = "数据集";
+              that.nodeCss = "node5css";
               break;
             }
           }
@@ -319,11 +343,12 @@ export default {
                 that.nodeDes = "线性回归";
                 break;
               }
+              case "node5": {
+                tempCom.type = "node5";
+                that.nodeDes = "数据集";
+              }
             }
-            // nodeInner = `${that.nodeDes}<span class="deleteNode"></span>`;
-            // nodeInner = `${that.nodeDes}<span class="deleteNode"></span>`;
             tempCom.innerText = that.nodeDes;
-
             console.log(tempCom, "tempCom");
             // 给克隆元素绑定唯一ID 让其后续可拖拽
             tempCom.id =
@@ -350,9 +375,6 @@ export default {
               posLeft: "",
               posTop: ""
             });
-            // document.getElementById(item.nodeId).bind("dblclick", function() {
-            //   console.log(12230);
-            // });
           }
         }
       });
@@ -371,32 +393,32 @@ export default {
       that.jsPlumb.addEndpoint(
         ele,
         {
-          anchors: ["Right"],
-          uuid: ele
+          anchors: ["Right"]
+          // anchor: ["Perimeter", { shape: "Square", anchorCount: 150 }]
+          // endpoint: "Dot",
+          //  anchor:[ "Perimeter", { shape:"Square" } ]
         },
         that.strartConfig
       );
       that.jsPlumb.addEndpoint(
         ele,
         {
-          anchors: ["Left"],
-          uuid: ele
+          anchors: ["Left"]
         },
         that.targetConfig
       );
       that.jsPlumb.addEndpoint(
         ele,
         {
-          anchors: ["Top"],
-          uuid: ele
+          anchors: ["Top"]
         },
         that.targetConfig
       );
       that.jsPlumb.addEndpoint(
         ele,
         {
-          anchors: ["Bottom"],
-          uuid: ele
+          anchors: ["Bottom"]
+          // anchor: ["Perimeter", { shape: "Square", anchorCount: 150 }]
         },
         that.strartConfig
       );
@@ -541,6 +563,11 @@ export default {
     // 清除localstorage
     deleteMindData() {
       localStorage.removeItem("pageNodeData");
+    },
+    // 点击打开算法库菜单
+    toggleAlgorithm() {
+      console.log(112233);
+      this.algorithmFlag = !this.algorithmFlag;
     }
   }
 };
@@ -556,28 +583,68 @@ body {
   justify-content: space-between;
 }
 
-#left {
-  // width: 169px;
-  // height: 50vh;
-  // padding: 8px;
-  border: 2px solid darkgray;
-  box-sizing: border-box;
-  background-color: #1b2128;
+#nodeMenu {
+  position: absolute;
+  left: 0;
+  top: 0;
+  .operateMenu {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+  .algorithmButton {
+    display: inline-block;
+    background: url("../assets/algorithmIcon.svg") no-repeat;
+    background-size: 16px 16px;
+    width: 26px;
+    height: 26px;
+    background-position: center;
+    color: #fff;
+    background-color: #384452;
+    margin-top: 8px;
+  }
+  //公共样式，基础节点集合
   .nodeCollection {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
   }
+  // 公共样式 主title
+  .collectionTitle {
+    display: block;
+    width: 100%;
+    height: 32px;
+    background-color: #27303a;
+    font-size: 14px;
+    text-align: center;
+    line-height: 32px;
+    color: #fff;
+    background-color: #384452;
+  }
+  // 公共样式 算法库子集title
+  .childTitle {
+    display: block;
+    width: 100%;
+    height: 32px;
+    background-color: #27303a;
+    font-size: 14px;
+    text-align: center;
+    line-height: 32px;
+  }
   // 算法库
   .algorithmLibrary {
+    height: 50vh;
+    // border: 2px solid darkgray;
+    box-sizing: border-box;
+    background-color: #27303a;
     width: 170px;
     color: #fff;
     // 算法库title
-    .algorithmLibraryTitle{
+    .algorithmLibraryTitle {
       display: block;
       width: 100%;
       height: 32px;
-      background-color: #27303A;
+      background-color: #27303a;
       font-size: 14px;
       text-align: center;
       line-height: 32px;
@@ -585,7 +652,7 @@ body {
     .statisticalAnalysis {
       padding: 8px;
       text-align: left;
-      .statisticalAnalysisTitle{
+      .statisticalAnalysisTitle {
         text-align: left;
         color: #fff;
         font-size: 14px;
@@ -595,11 +662,13 @@ body {
       color: #fff;
     }
   }
+  // 数据集
+  .dataSet {
+    width: 170px;
+  }
 }
 
 .node {
-  opacity: 0.8;
-  filter: alpha(opacity=80);
   text-align: center;
   z-index: 20;
   background-color: #eeeeef;
@@ -644,7 +713,13 @@ body {
   background-position: center;
   top: 350px;
 }
-
+.node5css {
+  background: url("../assets/icon／数据.svg") no-repeat;
+  background-size: 16px 16px;
+  background-color: #384452;
+  background-position: center;
+  top: 350px;
+}
 
 #right {
   width: calc(100% - 260px);
@@ -666,6 +741,7 @@ body {
   height: calc(100% - 75px);
   border: 1px solid red;
   background-color: #1b2128;
+  position: relative;
 }
 
 // 克隆节点01
