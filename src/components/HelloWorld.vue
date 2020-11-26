@@ -3,29 +3,71 @@
   <div>
     <div id="root">
       <div id="right">
-        <h2>下方区域绘制流程图</h2>
-        <button @click="saveMind">保存</button>
-        <button @click="deleteMindData">清空localstorage</button>
-        <div class="content" scope="yhd" style="position: relative" id="main" @click="reduceNode">
+        <div class="des">
+          <h2>下方区域绘制流程图</h2>
+          <p>说明: </p>
+          <button @click="saveMind">保存</button>
+          <button @click="deleteMindData">清空localstorage</button>
+        </div>
+        <div
+          class="content"
+          scope="yhd"
+          style="position: relative"
+          id="main"
+          @click="reduceNode"
+        >
           <div id="nodeMenu">
             <!-- 通过按钮控制部分 -->
             <div class="operateMenu">
               <!-- 数据集本集 -->
-              <div class="node node5css" id="node5" title="数据集"></div>
+              <div
+                class="node node5css"
+                id="node5"
+                title="数据集"
+              ></div>
               <!-- 算法库控制按钮 -->
-              <span class="algorithmButton" @click="toggleAlgorithm()"></span>
+              <span
+                class="algorithmButton"
+                @mouseover="showAlgorithm"
+                @mouseleave='hideAlgorithm'
+              ></span>
             </div>
             <!-- 主体菜单部分 -->
             <!-- 算法库 -->
-            <div class="algorithmLibrary" title="算法库" v-show="algorithmFlag">
+            <div
+              class="algorithmLibrary"
+              title="算法库"
+              v-show="algorithmFlag"
+              @mouseover="showAlgorithm"
+              @mouseleave='hideAlgorithm'
+            >
               <span class="collectionTitle">算法库</span>
-              <div class="statisticalAnalysis" title="统计分析">
+              <div
+                class="statisticalAnalysis"
+                title="统计分析"
+              >
                 <span class="statisticalAnalysisTitle">统计分析</span>
                 <div class="nodeCollection">
-                  <div class="node" id="node1" title="ols回归"></div>
-                  <div class="node node2css" id="node2" title="逐步回归"></div>
-                  <div class="node node3css" id="node3" title="逻辑回归"></div>
-                  <div class="node node4css" id="node4" title="线性回归"></div>
+                  <div
+                    class="node"
+                    id="node1"
+                    title="ols回归"
+                  ></div>
+                  <div
+                    class="node node2css"
+                    id="node2"
+                    title="逐步回归"
+                  ></div>
+                  <div
+                    class="node node3css"
+                    id="node3"
+                    title="逻辑回归"
+                  ></div>
+                  <div
+                    class="node node4css"
+                    id="node4"
+                    title="线性回归"
+                  ></div>
                 </div>
               </div>
             </div>
@@ -38,7 +80,7 @@
 <script>
 export default {
   components: {},
-  data() {
+  data () {
     return {
       // dataFlag: false, //数据集菜单显示判断，
       algorithmFlag: false, //算法库菜单显示判断，
@@ -54,14 +96,14 @@ export default {
         isSource: false, //是否可以拖动（作为连线起点）
         isTarget: true, //是否可以放置（连线终点）
         maxConnections: -1,
-   
+
       },
       // 终点锚点配置
       strartConfig: {
         isSource: true, //是否可以拖动（作为连线起点）
         isTarget: false, //是否可以放置（连线终点）
         maxConnections: -1,
-     
+
       },
       // 节点记录
       /**
@@ -94,8 +136,8 @@ export default {
       storageData: {}
     };
   },
-  created() {},
-  mounted() {
+  created () { },
+  mounted () {
     //  初始化jsplumb
     this.initMind();
     // 回显
@@ -113,7 +155,7 @@ export default {
   watch: {},
   methods: {
     // 初始化jsplumb
-    initMind() {
+    initMind () {
       this.jsPlumb = this.$jsPlumb.getInstance({
         Container: "root", //选择器id
         //  Endpoint: ["Dot", { radius: 5, fill: "#ffffff" }],
@@ -158,7 +200,7 @@ export default {
       });
     },
     // 回显函数
-    reShowMind() {
+    reShowMind () {
       if (localStorage.getItem("pageNodeData")) {
         let getNodeArr = JSON.parse(localStorage.getItem("pageNodeData"))
           .mindData;
@@ -168,7 +210,7 @@ export default {
         let dom = "";
         let innerSpan = "";
         // 通过type给动态创建的节点绑定样式和文字描述
-        getNodeArr.forEach(function(item) {
+        getNodeArr.forEach(function (item) {
           switch (item.type) {
             case "node1": {
               that.nodeDes = "ols回归";
@@ -222,7 +264,7 @@ export default {
           that.jsPlumb.draggable(item.nodeId, {
             scope: "yhd",
             containment: true,
-            drag: function() {}
+            drag: function () { }
           });
         });
         // 添加连线  连线要在节点创建之后
@@ -241,8 +283,8 @@ export default {
       }
     },
     // 设置节点连接规则
-    banLineNode() {
-      this.jsPlumb.bind("connection", function(info, originalEvent) {
+    banLineNode () {
+      this.jsPlumb.bind("connection", function (info, originalEvent) {
         // console.log(12313)
         // console.log(info)
         var that = this;
@@ -253,34 +295,33 @@ export default {
       });
     },
     // 基础节点拖动克隆
-    basicDrags() {
+    basicDrags () {
       let that = this;
       let nodeArr = Array.from(document.getElementsByClassName("node"));
 
-      nodeArr.forEach(function(item) {
+      nodeArr.forEach(function (item) {
         that.jsPlumb.draggable(item.id, {
           clone: true,
           scope: "yhd",
           containment: true,
-          drag: function() {}
+          drag: function () { }
         });
       });
     },
     // 设置元素存放 相关
-    allDrop(e) {
-      // console.log(object)
+    allDrop (e) {
       e.preventDefault();
     },
-    drop(e) {
+    drop (e) {
       e.preventDefault();
     },
-    drapNodes() {
+    drapNodes () {
       let that = this;
       let areaId = document.getElementById("main");
       that.jsPlumb.droppable("main", {
         scope: "yhd",
         containment: true,
-        drop: function(event, ui) {
+        drop: function (event, ui) {
           // console.log(event, ui, "+++++");
           event.drop.el.style.position = "relative";
           let tempCom = event.e.target.cloneNode(true);
@@ -319,8 +360,6 @@ export default {
              *
              */
             let sourceNodeId = event.drag.el.id;
-            // console.log(sourceNodeId);
-            // let nodeInner = "";
             switch (sourceNodeId) {
               case "node1": {
                 that.nodeDes = "ols回归";
@@ -349,7 +388,6 @@ export default {
               }
             }
             tempCom.innerText = that.nodeDes;
-            console.log(tempCom, "tempCom");
             // 给克隆元素绑定唯一ID 让其后续可拖拽
             tempCom.id =
               Math.random()
@@ -380,7 +418,7 @@ export default {
       });
     },
     // 设置元素增加锚点 上下左右四个
-    addAnchor(ele) {
+    addAnchor (ele) {
       //基本连接线样式
       var connectorPaintStyle = {
         // lineWidth: 4,
@@ -424,7 +462,7 @@ export default {
       );
     },
     // // 设置连接线
-    connectLine(sourceId, targetId, anchorPoints) {
+    connectLine (sourceId, targetId, anchorPoints) {
       this.jsPlumb.connect({
         source: sourceId,
         target: targetId,
@@ -432,7 +470,7 @@ export default {
       });
     },
     // 鼠标移入
-    nodeHover(ele, type) {
+    nodeHover (ele, type) {
       let that = this;
       // 鼠标移入右侧克隆节点
       if (type === "cloneNodes") {
@@ -441,14 +479,14 @@ export default {
       // 鼠标移入左侧基准节点
       else if (type === "basicNodes") {
         // console.log(ele.children[0]);
-        ele.onmouseover = function() {
+        ele.onmouseover = function () {
           // console.log("鼠标移入");
           // ele.children[0].style.display = "inline-block";
         };
       }
     },
     // 鼠标移出
-    nodeMouseLeave(ele, type) {
+    nodeMouseLeave (ele, type) {
       let that = this;
       // 鼠标移出右边克隆节点
       if (type === "cloneNode") {
@@ -456,7 +494,7 @@ export default {
       }
       // 鼠标移出左边的几个基准节点
       else if (type === "basicNodes") {
-        ele.onmouseleave = function() {
+        ele.onmouseleave = function () {
           // console.log("鼠标移出");
           // ele.children[0].style.display = "none";
         };
@@ -465,7 +503,7 @@ export default {
     // 点击 X 删除一个节点
     // 通过事件捕获
     // 删除节点后需要删除pageNodeData中的相应节点
-    reduceNode(e) {
+    reduceNode (e) {
       var that = this;
       e.stopPropagation();
       e.preventDefault();
@@ -475,7 +513,7 @@ export default {
         if (confirm("确定删除此节点吗？")) {
           that.jsPlumb.remove(e.target.parentNode.id);
           // 删除节点的同时删除pageNodeData中的该节点
-          that.pageNodeData.forEach(function(item) {
+          that.pageNodeData.forEach(function (item) {
             if (item.nodeId === e.target.parentNode.id) {
               // console.log(item);
               // console.log(that.pageNodeData.indexOf(item))
@@ -487,7 +525,7 @@ export default {
       }
     },
     // 单击根据提示连线删除连线
-    reduceLine() {
+    reduceLine () {
       var that = this;
       this.jsPlumb.bind("click", (conn, originalEvent) => {
         if (confirm("确定删除此线吗？")) {
@@ -497,7 +535,7 @@ export default {
       });
     },
     // 点击保存按钮
-    saveMind() {
+    saveMind () {
       for (let i = 0; i < this.pageNodeData.length; i++) {
         this.pageNodeData[i].targetInfo = [];
       }
@@ -505,7 +543,7 @@ export default {
 
       // 保存所有连线的起点终点
       let lineArr = [];
-      this.jsPlumb.getAllConnections().forEach(function(item) {
+      this.jsPlumb.getAllConnections().forEach(function (item) {
         console.log(item.endpoints[1].anchor, "这是终点");
         console.log(item.endpoints[0].anchor, "这是起点");
         lineArr.push({
@@ -528,8 +566,8 @@ export default {
       });
       console.log(lineArr);
       // 将连线起点终点保存给对应节点
-      this.pageNodeData.forEach(function(item) {
-        lineArr.forEach(function(utem) {
+      this.pageNodeData.forEach(function (item) {
+        lineArr.forEach(function (utem) {
           if (item.nodeId === utem.sourceId) {
             item.targetInfo.push({
               targetTo: utem.targetId,
@@ -542,8 +580,8 @@ export default {
       // 获取每个节点的定位信息
       let nodeArr = Array.from(document.getElementById("main").children);
       // console.log(nodeArr);
-      this.pageNodeData.forEach(function(item) {
-        nodeArr.forEach(function(utem) {
+      this.pageNodeData.forEach(function (item) {
+        nodeArr.forEach(function (utem) {
           if (item.nodeId === utem.id) {
             item.posLeft = utem.style.left;
             item.posTop = utem.style.top;
@@ -561,13 +599,17 @@ export default {
       console.log(this.pageNodeData);
     },
     // 清除localstorage
-    deleteMindData() {
+    deleteMindData () {
       localStorage.removeItem("pageNodeData");
     },
     // 点击打开算法库菜单
-    toggleAlgorithm() {
+    showAlgorithm () {
       console.log(112233);
-      this.algorithmFlag = !this.algorithmFlag;
+      this.algorithmFlag = true
+    },
+    hideAlgorithm () {
+      this.algorithmFlag = false
+
     }
   }
 };
@@ -722,11 +764,29 @@ body {
 }
 
 #right {
-  width: calc(100% - 260px);
+  width: 100%;
   height: 100vh;
   border: 2px solid olivedrab;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  .des {
+    height: 10%;
+    padding: 8px;
+    
+    h2 {
+      margin: 0;
+      padding: 0;
+    }
+    p {
+      margin: 8px;
+      padding: 0;
+      
+    }
+  }
 }
+
 .content {
   border-top: 1px solid darkgrey;
 }
@@ -738,7 +798,7 @@ body {
 }
 #main {
   width: 100%;
-  height: calc(100% - 75px);
+  height: 90%;
   border: 1px solid red;
   background-color: #1b2128;
   position: relative;
